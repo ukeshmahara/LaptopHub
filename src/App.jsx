@@ -5,6 +5,7 @@ import LaptopShowcase from './components/LaptopShowcase';
 import FeaturesSection from './components/FeaturesSection';
 import HowItWorks from './components/HowItWorks';
 import Footer from './components/Footer';
+import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 
 function App() {
@@ -12,6 +13,8 @@ function App() {
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'login':
+        return <LoginPage onNavigate={setCurrentPage} />;
       case 'register':
         return <RegisterPage onNavigate={setCurrentPage} />;
       default:
