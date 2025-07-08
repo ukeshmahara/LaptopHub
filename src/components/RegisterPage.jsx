@@ -5,11 +5,13 @@ const RegisterPage = ({ onNavigate }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [gender, setGender] = useState('');
+  const [address, setAddress] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword || !gender || !address) {
       setError('Please fill in all fields.');
       return;
     }
@@ -74,6 +76,32 @@ const RegisterPage = ({ onNavigate }) => {
               className="form-input"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="register-gender">Gender</label>
+            <select
+              id="register-gender"
+              className="form-input"
+              value={gender}
+              onChange={e => setGender(e.target.value)}
+              required
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="register-address">Address</label>
+            <input
+              id="register-address"
+              type="text"
+              className="form-input"
+              value={address}
+              onChange={e => setAddress(e.target.value)}
               required
             />
           </div>

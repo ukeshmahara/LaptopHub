@@ -17,6 +17,14 @@ function App() {
         return <LoginPage onNavigate={setCurrentPage} />;
       case 'register':
         return <RegisterPage onNavigate={setCurrentPage} />;
+      case 'about':
+        return (
+          <div className="app">
+            <Header onNavigate={setCurrentPage} />
+            <HowItWorks />
+            <Footer />
+          </div>
+        );
       default:
         return (
           <div className="app">

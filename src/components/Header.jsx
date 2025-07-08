@@ -25,9 +25,8 @@ const Header = ({ onNavigate }) => {
         </div>
 
         <nav className="nav-links">
-          <a href="#">Browse</a>
-          <a href="#">Sell</a>
-          <a href="#">Support</a>
+          <a href="#" onClick={() => onNavigate('home')}>Home</a>
+          <a href="#" onClick={() => onNavigate('about')}>About</a>
         </nav>
 
         <div className="auth-buttons">
