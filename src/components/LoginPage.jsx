@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const LoginPage = ({ onNavigate }) => {
+const LoginPage = ({ onNavigate, onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,8 +12,20 @@ const LoginPage = ({ onNavigate }) => {
       return;
     }
     setError('');
-    alert('Logged in!');
-    onNavigate('home');
+    
+    // Mock user data - in a real app, this would come from your backend
+    const userData = {
+      name: email.split('@')[0], // Use email prefix as name for demo
+      email: email,
+      id: Date.now()
+    };
+    
+    if (onLogin) {
+      onLogin(userData);
+    } else {
+      alert('Logged in!');
+      onNavigate('home');
+    }
   };
 
   return (

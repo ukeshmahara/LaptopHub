@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, User, Menu, X, Laptop } from 'lucide-react';
 
-const Header = ({ onNavigate }) => {
+const Header = ({ onNavigate, user }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -27,21 +27,41 @@ const Header = ({ onNavigate }) => {
         <nav className="nav-links">
           <a href="#" onClick={() => onNavigate('home')}>Home</a>
           <a href="#" onClick={() => onNavigate('about')}>About</a>
+          {user && (
+            <a href="#" onClick={() => onNavigate('dashboard')}>Dashboard</a>
+          )}
         </nav>
 
         <div className="auth-buttons">
-          <button 
-            className="btn btn-login"
-            onClick={() => onNavigate('login')}
-          >
-            Login
-          </button>
-          <button 
-            className="btn btn-register"
-            onClick={() => onNavigate('register')}
-          >
-            Register
-          </button>
+          {user ? (
+            <div className="user-menu">
+              <span className="user-name">Hi, {user.name}</span>
+              <button 
+                className="btn btn-logout"
+                onClick={() => {
+                  // Clear user and go to home
+                  window.location.reload();
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <>
+              <button 
+                className="btn btn-login"
+                onClick={() => onNavigate('login')}
+              >
+                Login
+              </button>
+              <button 
+                className="btn btn-register"
+                onClick={() => onNavigate('register')}
+              >
+                Register
+              </button>
+            </>
+          )}
         </div>
 
         <button

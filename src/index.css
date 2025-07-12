@@ -126,6 +126,27 @@ body {
   background: #1d4ed8;
 }
 
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-name {
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.btn-logout {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-logout:hover {
+  background: #b91c1c;
+}
+
 .mobile-menu-btn {
   display: none;
   background: none;
