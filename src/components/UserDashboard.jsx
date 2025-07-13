@@ -44,6 +44,69 @@ const UserDashboard = ({ onNavigate, user }) => {
     }
   ];
 
+  // Shopping Cart State
+  const [cartItems, setCartItems] = useState([
+    {
+      id: 5,
+      name: "HP Spectre x360 14",
+      brand: "HP",
+      price: 799,
+      quantity: 1,
+      image: "https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=400"
+    },
+    {
+      id: 6,
+      name: "Surface Laptop Studio",
+      brand: "Microsoft",
+      price: 1399,
+      quantity: 1,
+      image: "https://images.pexels.com/photos/4065876/pexels-photo-4065876.jpeg?auto=compress&cs=tinysrgb&w=400"
+    }
+  ]);
+
+  const [savedForLater, setSavedForLater] = useState([
+    {
+      id: 7,
+      name: "MacBook Air M1",
+      brand: "Apple",
+      price: 999,
+      image: "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400"
+    }
+  ]);
+
+  // Recently Viewed State
+  const [recentlyViewed, setRecentlyViewed] = useState([
+    {
+      id: 8,
+      name: "Lenovo ThinkPad T14",
+      brand: "Lenovo",
+      price: 1299,
+      image: "https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400",
+      viewedAt: "2024-01-20"
+    },
+    {
+      id: 9,
+      name: "Dell Inspiron 15",
+      brand: "Dell",
+      price: 699,
+      image: "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg?auto=compress&cs=tinysrgb&w=400",
+      viewedAt: "2024-01-19"
+    }
+  ]);
+
+  // Price Alerts State
+  const [priceAlerts, setPriceAlerts] = useState([
+    {
+      id: 3,
+      name: "ThinkPad X1 Carbon Gen 10",
+      brand: "Lenovo",
+      currentPrice: 899,
+      targetPrice: 850,
+      image: "https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400",
+      alertSet: "2024-01-15"
+    }
+  ]);
+
   const currentOrders = [
     {
       id: "ORD-001",
@@ -63,6 +126,48 @@ const UserDashboard = ({ onNavigate, user }) => {
     }
   ];
 
+  // Cart Functions
+  const updateQuantity = (itemId, newQuantity) => {
+    if (newQuantity < 1) return;
+    setCartItems(prev => 
+      prev.map(item => 
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const removeFromCart = (itemId) => {
+    setCartItems(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const moveToSavedForLater = (itemId) => {
+    const item = cartItems.find(item => item.id === itemId);
+    if (item) {
+      setSavedForLater(prev => [...prev, { ...item, quantity: 1 }]);
+      removeFromCart(itemId);
+    }
+  };
+
+  const moveToCart = (itemId) => {
+    const item = savedForLater.find(item => item.id === itemId);
+    if (item) {
+      setCartItems(prev => [...prev, { ...item, quantity: 1 }]);
+      setSavedForLater(prev => prev.filter(item => item.id !== itemId));
+    }
+  };
+
+  const removeFromSaved = (itemId) => {
+    setSavedForLater(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const getCartTotal = () => {
+    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  const getCartItemCount = () => {
+    return cartItems.reduce((count, item) => count + item.quantity, 0);
+  };
+
   const renderOverview = () => (
     <div className="dashboard-overview">
       <div className="welcome-section">
@@ -71,6 +176,13 @@ const UserDashboard = ({ onNavigate, user }) => {
       </div>
       
       <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon">🛒</div>
+          <div className="stat-content">
+            <h3>{getCartItemCount()}</h3>
+            <p>Cart Items</p>
+          </div>
+        </div>
         <div className="stat-card">
           <div className="stat-icon">📦</div>
           <div className="stat-content">
@@ -93,10 +205,17 @@ const UserDashboard = ({ onNavigate, user }) => {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">⭐</div>
+          <div className="stat-icon">👁️</div>
           <div className="stat-content">
-            <h3>4.8</h3>
-            <p>Average Rating</p>
+            <h3>{recentlyViewed.length}</h3>
+            <p>Recently Viewed</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">🔔</div>
+          <div className="stat-content">
+            <h3>{priceAlerts.length}</h3>
+            <p>Price Alerts</p>
           </div>
         </div>
       </div>
@@ -202,6 +321,169 @@ const UserDashboard = ({ onNavigate, user }) => {
     </div>
   );
 
+  const renderShoppingCart = () => (
+    <div className="shopping-cart">
+      <h3>Shopping Cart ({getCartItemCount()} items)</h3>
+      
+      {cartItems.length === 0 ? (
+        <div className="empty-cart">
+          <p>Your cart is empty</p>
+          <button className="btn-primary" onClick={() => onNavigate('home')}>
+            Continue Shopping
+          </button>
+        </div>
+      ) : (
+        <div className="cart-container">
+          <div className="cart-items">
+            {cartItems.map(item => (
+              <div key={item.id} className="cart-item">
+                <img src={item.image} alt={item.name} />
+                <div className="item-details">
+                  <h4>{item.name}</h4>
+                  <p className="brand">{item.brand}</p>
+                  <p className="price">${item.price}</p>
+                </div>
+                <div className="quantity-controls">
+                  <button 
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <span>{item.quantity}</span>
+                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                    +
+                  </button>
+                </div>
+                <div className="item-total">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </div>
+                <div className="item-actions">
+                  <button 
+                    className="btn-secondary"
+                    onClick={() => moveToSavedForLater(item.id)}
+                  >
+                    Save for Later
+                  </button>
+                  <button 
+                    className="btn-danger"
+                    onClick={() => removeFromCart(item.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="cart-summary">
+            <h4>Order Summary</h4>
+            <div className="summary-item">
+              <span>Subtotal ({getCartItemCount()} items):</span>
+              <span>${getCartTotal().toFixed(2)}</span>
+            </div>
+            <div className="summary-item">
+              <span>Shipping:</span>
+              <span>Free</span>
+            </div>
+            <div className="summary-item total">
+              <span>Total:</span>
+              <span>${getCartTotal().toFixed(2)}</span>
+            </div>
+            <button className="btn-primary checkout-btn">
+              Proceed to Checkout
+            </button>
+          </div>
+        </div>
+      )}
+
+      {savedForLater.length > 0 && (
+        <div className="saved-for-later">
+          <h4>Saved for Later ({savedForLater.length} items)</h4>
+          <div className="saved-items">
+            {savedForLater.map(item => (
+              <div key={item.id} className="saved-item">
+                <img src={item.image} alt={item.name} />
+                <div className="item-details">
+                  <h5>{item.name}</h5>
+                  <p className="brand">{item.brand}</p>
+                  <p className="price">${item.price}</p>
+                </div>
+                <div className="saved-actions">
+                  <button 
+                    className="btn-primary"
+                    onClick={() => moveToCart(item.id)}
+                  >
+                    Move to Cart
+                  </button>
+                  <button 
+                    className="btn-danger"
+                    onClick={() => removeFromSaved(item.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderRecentlyViewed = () => (
+    <div className="recently-viewed">
+      <h3>Recently Viewed</h3>
+      <div className="laptops-grid">
+        {recentlyViewed.map(laptop => (
+          <div key={laptop.id} className="laptop-card">
+            <img src={laptop.image} alt={laptop.name} />
+            <div className="laptop-info">
+              <h4>{laptop.name}</h4>
+              <p className="brand">{laptop.brand}</p>
+              <p className="price">${laptop.price}</p>
+              <p className="viewed-date">Viewed: {laptop.viewedAt}</p>
+              <div className="recent-actions">
+                <button className="btn-primary">Add to Cart</button>
+                <button className="btn-secondary">Add to Wishlist</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderPriceAlerts = () => (
+    <div className="price-alerts">
+      <h3>Price Alerts</h3>
+      <div className="alerts-list">
+        {priceAlerts.map(alert => (
+          <div key={alert.id} className="alert-card">
+            <img src={alert.image} alt={alert.name} />
+            <div className="alert-info">
+              <h4>{alert.name}</h4>
+              <p className="brand">{alert.brand}</p>
+              <div className="price-info">
+                <p className="current-price">Current: ${alert.currentPrice}</p>
+                <p className="target-price">Target: ${alert.targetPrice}</p>
+                <p className="difference">
+                  ${alert.currentPrice - alert.targetPrice} more needed
+                </p>
+              </div>
+              <p className="alert-set">Alert set: {alert.alertSet}</p>
+            </div>
+            <div className="alert-actions">
+              <button className="btn-primary">View Product</button>
+              <button className="btn-secondary">Edit Alert</button>
+              <button className="btn-danger">Remove Alert</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   const renderAccountSettings = () => (
     <div className="account-settings">
       <h3>Account Settings</h3>
@@ -235,6 +517,12 @@ const UserDashboard = ({ onNavigate, user }) => {
         return renderPurchasedLaptops();
       case 'wishlist':
         return renderWishlist();
+      case 'cart':
+        return renderShoppingCart();
+      case 'recently-viewed':
+        return renderRecentlyViewed();
+      case 'price-alerts':
+        return renderPriceAlerts();
       case 'orders':
         return renderOrders();
       case 'settings':
@@ -268,6 +556,12 @@ const UserDashboard = ({ onNavigate, user }) => {
               📊 Overview
             </button>
             <button 
+              className={`nav-item ${activeSection === 'cart' ? 'active' : ''}`}
+              onClick={() => setActiveSection('cart')}
+            >
+              🛒 Shopping Cart ({getCartItemCount()})
+            </button>
+            <button 
               className={`nav-item ${activeSection === 'purchased' ? 'active' : ''}`}
               onClick={() => setActiveSection('purchased')}
             >
@@ -278,6 +572,18 @@ const UserDashboard = ({ onNavigate, user }) => {
               onClick={() => setActiveSection('wishlist')}
             >
               ❤️ Wishlist
+            </button>
+            <button 
+              className={`nav-item ${activeSection === 'recently-viewed' ? 'active' : ''}`}
+              onClick={() => setActiveSection('recently-viewed')}
+            >
+              👁️ Recently Viewed
+            </button>
+            <button 
+              className={`nav-item ${activeSection === 'price-alerts' ? 'active' : ''}`}
+              onClick={() => setActiveSection('price-alerts')}
+            >
+              🔔 Price Alerts ({priceAlerts.length})
             </button>
             <button 
               className={`nav-item ${activeSection === 'orders' ? 'active' : ''}`}
