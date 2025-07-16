@@ -6,27 +6,6 @@ const UserDashboard = ({ onNavigate, user }) => {
   const [userName] = useState(user?.name || 'User');
 
   // Mock data - in a real app, this would come from your backend
-  const purchasedLaptops = [
-    {
-      id: 1,
-      name: "MacBook Pro 13-inch M2",
-      brand: "Apple",
-      price: 1299,
-      purchaseDate: "2024-01-15",
-      status: "Delivered",
-      image: "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400"
-    },
-    {
-      id: 2,
-      name: "Dell XPS 15 9520",
-      brand: "Dell",
-      price: 1099,
-      purchaseDate: "2024-01-10",
-      status: "In Transit",
-      image: "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg?auto=compress&cs=tinysrgb&w=400"
-    }
-  ];
-
   const wishlist = [
     {
       id: 3,
@@ -64,49 +43,6 @@ const UserDashboard = ({ onNavigate, user }) => {
     }
   ]);
 
-  const [savedForLater, setSavedForLater] = useState([
-    {
-      id: 7,
-      name: "MacBook Air M1",
-      brand: "Apple",
-      price: 999,
-      image: "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400"
-    }
-  ]);
-
-  // Recently Viewed State
-  const [recentlyViewed, setRecentlyViewed] = useState([
-    {
-      id: 8,
-      name: "Lenovo ThinkPad T14",
-      brand: "Lenovo",
-      price: 1299,
-      image: "https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400",
-      viewedAt: "2024-01-20"
-    },
-    {
-      id: 9,
-      name: "Dell Inspiron 15",
-      brand: "Dell",
-      price: 699,
-      image: "https://images.pexels.com/photos/238118/pexels-photo-238118.jpeg?auto=compress&cs=tinysrgb&w=400",
-      viewedAt: "2024-01-19"
-    }
-  ]);
-
-  // Price Alerts State
-  const [priceAlerts, setPriceAlerts] = useState([
-    {
-      id: 3,
-      name: "ThinkPad X1 Carbon Gen 10",
-      brand: "Lenovo",
-      currentPrice: 899,
-      targetPrice: 850,
-      image: "https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400",
-      alertSet: "2024-01-15"
-    }
-  ]);
-
   const currentOrders = [
     {
       id: "ORD-001",
@@ -140,26 +76,6 @@ const UserDashboard = ({ onNavigate, user }) => {
     setCartItems(prev => prev.filter(item => item.id !== itemId));
   };
 
-  const moveToSavedForLater = (itemId) => {
-    const item = cartItems.find(item => item.id === itemId);
-    if (item) {
-      setSavedForLater(prev => [...prev, { ...item, quantity: 1 }]);
-      removeFromCart(itemId);
-    }
-  };
-
-  const moveToCart = (itemId) => {
-    const item = savedForLater.find(item => item.id === itemId);
-    if (item) {
-      setCartItems(prev => [...prev, { ...item, quantity: 1 }]);
-      setSavedForLater(prev => prev.filter(item => item.id !== itemId));
-    }
-  };
-
-  const removeFromSaved = (itemId) => {
-    setSavedForLater(prev => prev.filter(item => item.id !== itemId));
-  };
-
   const getCartTotal = () => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
@@ -184,13 +100,6 @@ const UserDashboard = ({ onNavigate, user }) => {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">📦</div>
-          <div className="stat-content">
-            <h3>{purchasedLaptops.length}</h3>
-            <p>Purchased Laptops</p>
-          </div>
-        </div>
-        <div className="stat-card">
           <div className="stat-icon">❤️</div>
           <div className="stat-content">
             <h3>{wishlist.length}</h3>
@@ -205,17 +114,10 @@ const UserDashboard = ({ onNavigate, user }) => {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">👁️</div>
+          <div className="stat-icon">💰</div>
           <div className="stat-content">
-            <h3>{recentlyViewed.length}</h3>
-            <p>Recently Viewed</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">🔔</div>
-          <div className="stat-content">
-            <h3>{priceAlerts.length}</h3>
-            <p>Price Alerts</p>
+            <h3>${getCartTotal().toFixed(0)}</h3>
+            <p>Cart Total</p>
           </div>
         </div>
       </div>
@@ -249,28 +151,6 @@ const UserDashboard = ({ onNavigate, user }) => {
     </div>
   );
 
-  const renderPurchasedLaptops = () => (
-    <div className="purchased-laptops">
-      <h3>My Purchased Laptops</h3>
-      <div className="laptops-grid">
-        {purchasedLaptops.map(laptop => (
-          <div key={laptop.id} className="laptop-card">
-            <img src={laptop.image} alt={laptop.name} />
-            <div className="laptop-info">
-              <h4>{laptop.name}</h4>
-              <p className="brand">{laptop.brand}</p>
-              <p className="price">${laptop.price}</p>
-              <p className="purchase-date">Purchased: {laptop.purchaseDate}</p>
-              <span className={`status ${laptop.status.toLowerCase().replace(' ', '-')}`}>
-                {laptop.status}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
   const renderWishlist = () => (
     <div className="wishlist">
       <h3>My Wishlist</h3>
@@ -286,34 +166,6 @@ const UserDashboard = ({ onNavigate, user }) => {
                 <button className="btn-primary">Add to Cart</button>
                 <button className="btn-secondary">Remove</button>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderOrders = () => (
-    <div className="orders">
-      <h3>My Orders</h3>
-      <div className="orders-list">
-        {currentOrders.map(order => (
-          <div key={order.id} className="order-card">
-            <div className="order-header">
-              <h4>Order #{order.id}</h4>
-              <span className={`status ${order.status.toLowerCase()}`}>
-                {order.status}
-              </span>
-            </div>
-            <div className="order-details">
-              <p><strong>Product:</strong> {order.laptopName}</p>
-              <p><strong>Price:</strong> ${order.price}</p>
-              <p><strong>Order Date:</strong> {order.orderDate}</p>
-              <p><strong>Estimated Delivery:</strong> {order.estimatedDelivery}</p>
-            </div>
-            <div className="order-actions">
-              <button className="btn-secondary">Track Order</button>
-              <button className="btn-secondary">View Details</button>
             </div>
           </div>
         ))}
@@ -360,12 +212,6 @@ const UserDashboard = ({ onNavigate, user }) => {
                 </div>
                 <div className="item-actions">
                   <button 
-                    className="btn-secondary"
-                    onClick={() => moveToSavedForLater(item.id)}
-                  >
-                    Save for Later
-                  </button>
-                  <button 
                     className="btn-danger"
                     onClick={() => removeFromCart(item.id)}
                   >
@@ -396,87 +242,30 @@ const UserDashboard = ({ onNavigate, user }) => {
           </div>
         </div>
       )}
-
-      {savedForLater.length > 0 && (
-        <div className="saved-for-later">
-          <h4>Saved for Later ({savedForLater.length} items)</h4>
-          <div className="saved-items">
-            {savedForLater.map(item => (
-              <div key={item.id} className="saved-item">
-                <img src={item.image} alt={item.name} />
-                <div className="item-details">
-                  <h5>{item.name}</h5>
-                  <p className="brand">{item.brand}</p>
-                  <p className="price">${item.price}</p>
-                </div>
-                <div className="saved-actions">
-                  <button 
-                    className="btn-primary"
-                    onClick={() => moveToCart(item.id)}
-                  >
-                    Move to Cart
-                  </button>
-                  <button 
-                    className="btn-danger"
-                    onClick={() => removeFromSaved(item.id)}
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 
-  const renderRecentlyViewed = () => (
-    <div className="recently-viewed">
-      <h3>Recently Viewed</h3>
-      <div className="laptops-grid">
-        {recentlyViewed.map(laptop => (
-          <div key={laptop.id} className="laptop-card">
-            <img src={laptop.image} alt={laptop.name} />
-            <div className="laptop-info">
-              <h4>{laptop.name}</h4>
-              <p className="brand">{laptop.brand}</p>
-              <p className="price">${laptop.price}</p>
-              <p className="viewed-date">Viewed: {laptop.viewedAt}</p>
-              <div className="recent-actions">
-                <button className="btn-primary">Add to Cart</button>
-                <button className="btn-secondary">Add to Wishlist</button>
-              </div>
+  const renderOrders = () => (
+    <div className="orders">
+      <h3>My Orders</h3>
+      <div className="orders-list">
+        {currentOrders.map(order => (
+          <div key={order.id} className="order-card">
+            <div className="order-header">
+              <h4>Order #{order.id}</h4>
+              <span className={`status ${order.status.toLowerCase()}`}>
+                {order.status}
+              </span>
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderPriceAlerts = () => (
-    <div className="price-alerts">
-      <h3>Price Alerts</h3>
-      <div className="alerts-list">
-        {priceAlerts.map(alert => (
-          <div key={alert.id} className="alert-card">
-            <img src={alert.image} alt={alert.name} />
-            <div className="alert-info">
-              <h4>{alert.name}</h4>
-              <p className="brand">{alert.brand}</p>
-              <div className="price-info">
-                <p className="current-price">Current: ${alert.currentPrice}</p>
-                <p className="target-price">Target: ${alert.targetPrice}</p>
-                <p className="difference">
-                  ${alert.currentPrice - alert.targetPrice} more needed
-                </p>
-              </div>
-              <p className="alert-set">Alert set: {alert.alertSet}</p>
+            <div className="order-details">
+              <p><strong>Product:</strong> {order.laptopName}</p>
+              <p><strong>Price:</strong> ${order.price}</p>
+              <p><strong>Order Date:</strong> {order.orderDate}</p>
+              <p><strong>Estimated Delivery:</strong> {order.estimatedDelivery}</p>
             </div>
-            <div className="alert-actions">
-              <button className="btn-primary">View Product</button>
-              <button className="btn-secondary">Edit Alert</button>
-              <button className="btn-danger">Remove Alert</button>
+            <div className="order-actions">
+              <button className="btn-secondary">Track Order</button>
+              <button className="btn-secondary">View Details</button>
             </div>
           </div>
         ))}
@@ -513,16 +302,10 @@ const UserDashboard = ({ onNavigate, user }) => {
     switch (activeSection) {
       case 'overview':
         return renderOverview();
-      case 'purchased':
-        return renderPurchasedLaptops();
-      case 'wishlist':
-        return renderWishlist();
       case 'cart':
         return renderShoppingCart();
-      case 'recently-viewed':
-        return renderRecentlyViewed();
-      case 'price-alerts':
-        return renderPriceAlerts();
+      case 'wishlist':
+        return renderWishlist();
       case 'orders':
         return renderOrders();
       case 'settings':
@@ -562,34 +345,16 @@ const UserDashboard = ({ onNavigate, user }) => {
               🛒 Shopping Cart ({getCartItemCount()})
             </button>
             <button 
-              className={`nav-item ${activeSection === 'purchased' ? 'active' : ''}`}
-              onClick={() => setActiveSection('purchased')}
-            >
-              💻 My Laptops
-            </button>
-            <button 
               className={`nav-item ${activeSection === 'wishlist' ? 'active' : ''}`}
               onClick={() => setActiveSection('wishlist')}
             >
-              ❤️ Wishlist
-            </button>
-            <button 
-              className={`nav-item ${activeSection === 'recently-viewed' ? 'active' : ''}`}
-              onClick={() => setActiveSection('recently-viewed')}
-            >
-              👁️ Recently Viewed
-            </button>
-            <button 
-              className={`nav-item ${activeSection === 'price-alerts' ? 'active' : ''}`}
-              onClick={() => setActiveSection('price-alerts')}
-            >
-              🔔 Price Alerts ({priceAlerts.length})
+              ❤️ Wishlist ({wishlist.length})
             </button>
             <button 
               className={`nav-item ${activeSection === 'orders' ? 'active' : ''}`}
               onClick={() => setActiveSection('orders')}
             >
-              📋 My Orders
+              📋 My Orders ({currentOrders.length})
             </button>
             <button 
               className={`nav-item ${activeSection === 'settings' ? 'active' : ''}`}

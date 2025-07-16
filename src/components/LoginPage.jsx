@@ -4,6 +4,7 @@ const LoginPage = ({ onNavigate, onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [role, setRole] = useState('user');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,19 +13,38 @@ const LoginPage = ({ onNavigate, onLogin }) => {
       return;
     }
     setError('');
-    
-    // Mock user data - in a real app, this would come from your backend
-    const userData = {
-      name: email.split('@')[0], // Use email prefix as name for demo
-      email: email,
-      id: Date.now()
-    };
-    
-    if (onLogin) {
-      onLogin(userData);
+    if (role === 'admin') {
+      if (email === 'rohitshrestha@gmail.com' && password === 'rohit@1212') {
+        const userData = {
+          name: 'Rohit Shrestha',
+          email: email,
+          isAdmin: true
+        };
+        if (onLogin) {
+          onLogin(userData);
+          onNavigate('admin-dashboard');
+        } else {
+          alert('Logged in as Admin!');
+          onNavigate('admin-dashboard');
+        }
+      } else {
+        setError('Invalid admin credentials.');
+        return;
+      }
     } else {
-      alert('Logged in!');
-      onNavigate('home');
+      const userData = {
+        name: email.split('@')[0],
+        email: email,
+        id: Date.now(),
+        isAdmin: false
+      };
+      if (onLogin) {
+        onLogin(userData);
+        onNavigate('dashboard');
+      } else {
+        alert('Logged in!');
+        onNavigate('home');
+      }
     }
   };
 
@@ -60,6 +80,19 @@ const LoginPage = ({ onNavigate, onLogin }) => {
               onChange={e => setPassword(e.target.value)}
               required
             />
+          </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="login-role">Role</label>
+            <select
+              id="login-role"
+              className="form-input"
+              value={role}
+              onChange={e => setRole(e.target.value)}
+              required
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
           {error && <div style={{ color: 'red', marginBottom: 10 }}>{error}</div>}
           <button className="auth-submit" type="submit">Login</button>

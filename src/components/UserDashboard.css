@@ -737,168 +737,7 @@
   font-size: 1.1rem;
 }
 
-.saved-for-later {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  padding: 2rem;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  margin-top: 2rem;
-}
-
-.saved-for-later h4 {
-  color: #333;
-  margin: 0 0 1.5rem 0;
-  font-size: 1.3rem;
-}
-
-.saved-items {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
-.saved-item {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  border: 1px solid rgba(102, 126, 234, 0.1);
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-.saved-item:hover {
-  border-color: #667eea;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
-}
-
-.saved-item img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.saved-item .item-details h5 {
-  margin: 0 0 0.25rem 0;
-  color: #333;
-  font-size: 1rem;
-}
-
-.saved-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-left: auto;
-}
-
-/* Recently Viewed Styles */
-.recently-viewed h3 {
-  color: #333;
-  margin: 0 0 1.5rem 0;
-  font-size: 1.5rem;
-}
-
-.viewed-date {
-  color: #666;
-  font-size: 0.85rem;
-  margin: 0.5rem 0;
-}
-
-.recent-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-/* Price Alerts Styles */
-.price-alerts h3 {
-  color: #333;
-  margin: 0 0 1.5rem 0;
-  font-size: 1.5rem;
-}
-
-.alerts-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.alert-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  padding: 2rem;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  display: grid;
-  grid-template-columns: 100px 1fr auto;
-  gap: 1.5rem;
-  align-items: center;
-  transition: all 0.3s ease;
-}
-
-.alert-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-}
-
-.alert-card img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-.alert-info h4 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
-  font-size: 1.1rem;
-}
-
-.alert-info .brand {
-  color: #666;
-  margin: 0 0 1rem 0;
-  font-size: 0.9rem;
-}
-
-.price-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.current-price {
-  color: #667eea;
-  font-weight: 600;
-  margin: 0;
-}
-
-.target-price {
-  color: #28a745;
-  font-weight: 600;
-  margin: 0;
-}
-
-.difference {
-  color: #ff4757;
-  font-weight: 600;
-  margin: 0;
-}
-
-.alert-set {
-  color: #666;
-  font-size: 0.85rem;
-  margin: 0;
-}
-
-.alert-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-/* Responsive Design for New Components */
+/* Responsive Design for Cart */
 @media (max-width: 768px) {
   .cart-container {
     grid-template-columns: 1fr;
@@ -914,20 +753,6 @@
   .item-actions {
     grid-column: 2;
   }
-  
-  .alert-card {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-  
-  .alert-actions {
-    flex-direction: row;
-    justify-content: center;
-  }
-  
-  .saved-items {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 480px) {
@@ -939,9 +764,5 @@
   .item-actions {
     flex-direction: row;
     justify-content: center;
-  }
-  
-  .alert-actions {
-    flex-direction: column;
   }
 } 
