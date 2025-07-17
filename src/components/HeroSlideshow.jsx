@@ -35,7 +35,6 @@ const HeroSlideshow = () => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
-
     return () => clearInterval(timer);
   }, [slides.length]);
 
@@ -53,19 +52,25 @@ const HeroSlideshow = () => {
         <div
           key={slide.id}
           className={`slide ${index === currentSlide ? 'active' : ''}`}
+          style={{ display: index === currentSlide ? 'block' : 'none' }}
         >
-          <img src={slide.image} alt="" />
+          <img src={slide.image} alt={slide.title} />
+          <div className="slide-overlay">
+            <div className="slide-content">
+              <div className="slide-text">
+                <h1 className="slide-title">{slide.title}</h1>
+                <p className="slide-subtitle">{slide.subtitle}</p>
+              </div>
+            </div>
+          </div>
         </div>
       ))}
-
       <button onClick={prevSlide} className="nav-arrow prev">
         <ChevronLeft size={24} />
       </button>
-      
       <button onClick={nextSlide} className="nav-arrow next">
         <ChevronRight size={24} />
       </button>
-
       <div className="slide-indicators">
         {slides.map((_, index) => (
           <button
@@ -79,4 +84,4 @@ const HeroSlideshow = () => {
   );
 };
 
-export default HeroSlideshow;
+export default HeroSlideshow; 

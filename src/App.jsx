@@ -14,10 +14,24 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [defaultDashboardSection, setDefaultDashboardSection] = useState('overview');
 
   const handleAdminLogin = () => {
     setAdmin({ name: 'Alice Admin', email: 'alice@admin.com' });
     setCurrentPage('admin-dashboard');
+  };
+
+  const addToCart = (laptop) => {
+    setCart((prev) => {
+      const found = prev.find(item => item.id === laptop.id);
+      if (found) {
+        return prev.map(item =>
+          item.id === laptop.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { ...laptop, quantity: 1 }];
+    });
   };
 
   const renderPage = () => {
@@ -30,7 +44,13 @@ function App() {
       case 'register':
         return <RegisterPage onNavigate={setCurrentPage} />;
       case 'dashboard':
-        return <UserDashboard onNavigate={setCurrentPage} user={user} />;
+        return <UserDashboard 
+          onNavigate={setCurrentPage} 
+          user={user} 
+          defaultSection={defaultDashboardSection}
+          cartItems={cart}
+          setCartItems={setCart}
+        />;
       case 'admin-dashboard':
         return <AdminDashboard onNavigate={setCurrentPage} admin={admin} />;
       case 'about':
@@ -47,7 +67,7 @@ function App() {
             <Header onNavigate={setCurrentPage} user={user} />
             <button style={{position:'absolute',top:10,right:10}} onClick={handleAdminLogin}>Admin Login (Demo)</button>
             <HeroSlideshow />
-            <LaptopShowcase />
+            <LaptopShowcase user={user} onNavigate={setCurrentPage} addToCart={addToCart} setDefaultDashboardSection={setDefaultDashboardSection} />
             <FeaturesSection />
             <HowItWorks />
             <Footer />

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './UserDashboard.css';
 
-const UserDashboard = ({ onNavigate, user }) => {
-  const [activeSection, setActiveSection] = useState('overview');
+const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItems = [], setCartItems }) => {
+  const [activeSection, setActiveSection] = useState(defaultSection);
   const [userName] = useState(user?.name || 'User');
 
   // Mock data - in a real app, this would come from your backend
@@ -22,26 +22,6 @@ const UserDashboard = ({ onNavigate, user }) => {
       image: "https://images.pexels.com/photos/2115217/pexels-photo-2115217.jpeg?auto=compress&cs=tinysrgb&w=400"
     }
   ];
-
-  // Shopping Cart State
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 5,
-      name: "HP Spectre x360 14",
-      brand: "HP",
-      price: 799,
-      quantity: 1,
-      image: "https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=400"
-    },
-    {
-      id: 6,
-      name: "Surface Laptop Studio",
-      brand: "Microsoft",
-      price: 1399,
-      quantity: 1,
-      image: "https://images.pexels.com/photos/4065876/pexels-photo-4065876.jpeg?auto=compress&cs=tinysrgb&w=400"
-    }
-  ]);
 
   const currentOrders = [
     {
