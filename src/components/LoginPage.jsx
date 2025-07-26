@@ -5,14 +5,17 @@ const LoginPage = ({ onNavigate, onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [role, setRole] = useState('user');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError('Please enter both email and password.');
       return;
     }
     setError('');
+    setLoading(true);
+    
     if (role === 'admin') {
       if (email === 'rohitshrestha@gmail.com' && password === 'rohit@1212') {
         const userData = {
@@ -29,21 +32,67 @@ const LoginPage = ({ onNavigate, onLogin }) => {
         }
       } else {
         setError('Invalid admin credentials.');
+        setLoading(false);
         return;
       }
     } else {
-      const userData = {
-        name: email.split('@')[0],
-        email: email,
-        id: Date.now(),
-        isAdmin: false
-      };
-      if (onLogin) {
-        onLogin(userData);
-        onNavigate('dashboard');
-      } else {
-        alert('Logged in!');
-        onNavigate('home');
+      try {
+        console.log('Attempting to login with:', { email });
+        const response = await fetch('http://localhost:4000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        console.log('Login response status:', response.status);
+        const data = await response.json();
+        console.log('Login response data:', data);
+        
+        if (response.ok && data.data && data.data.access_token) {
+          localStorage.setItem('token', data.data.access_token);
+          console.log('Token stored, fetching user details...');
+          
+          // Fetch user details after successful login
+          try {
+            const userResponse = await fetch('http://localhost:4000/api/auth/init', {
+              method: 'GET',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${data.data.access_token}`
+              }
+            });
+            
+            console.log('User details response status:', userResponse.status);
+            const userData = await userResponse.json();
+            console.log('User details data:', userData);
+            
+            if (userResponse.ok && userData.data) {
+              if (onLogin) {
+                onLogin(userData.data);
+              }
+            } else {
+              // Fallback if user details fetch fails
+              if (onLogin) {
+                onLogin({ email, name: email.split('@')[0] });
+              }
+            }
+          } catch (userErr) {
+            console.error('Error fetching user details:', userErr);
+            // If user fetch fails, still login with basic info
+            if (onLogin) {
+              onLogin({ email, name: email.split('@')[0] });
+            }
+          }
+          setLoading(false);
+          onNavigate('dashboard');
+        } else {
+          setError(data.message || 'Login failed. Please check your credentials.');
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Login error:', err);
+        setError('Network error. Please check if the server is running.');
+        setLoading(false);
       }
     }
   };
@@ -94,8 +143,11 @@ const LoginPage = ({ onNavigate, onLogin }) => {
               <option value="admin">Admin</option>
             </select>
           </div>
-          {error && <div style={{ color: 'red', marginBottom: 10 }}>{error}</div>}
-          <button className="auth-submit" type="submit">Login</button>
+          {error && <div style={{ color: 'red', marginBottom: 10, padding: '10px', backgroundColor: '#ffe6e6', borderRadius: '5px' }}>{error}</div>}
+          {loading && <div style={{ color: 'blue', marginBottom: 10, padding: '10px', backgroundColor: '#e6f3ff', borderRadius: '5px' }}>Logging in...</div>}
+          <button className="auth-submit" type="submit" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
           <div className="auth-switch">
             Don't have an account?{' '}
             <a href="#" onClick={() => onNavigate('register')}>Register</a>

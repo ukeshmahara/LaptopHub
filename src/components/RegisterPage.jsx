@@ -8,8 +8,10 @@ const RegisterPage = ({ onNavigate }) => {
   const [gender, setGender] = useState('');
   const [address, setAddress] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !email || !password || !confirmPassword || !gender || !address) {
       setError('Please fill in all fields.');
@@ -19,9 +21,39 @@ const RegisterPage = ({ onNavigate }) => {
       setError('Passwords do not match.');
       return;
     }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+    
     setError('');
-    alert('Registered successfully!');
-    onNavigate('home');
+    setSuccess('');
+    setLoading(true);
+    
+    try {
+      console.log('Attempting to register user:', { name, email, gender, address });
+      const response = await fetch('http://localhost:4000/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, gender, address })
+      });
+      
+      console.log('Registration response status:', response.status);
+      const data = await response.json();
+      console.log('Registration response data:', data);
+      
+      if (response.ok) {
+        setSuccess('Registered successfully! Redirecting to login...');
+        setTimeout(() => onNavigate('login'), 1500);
+      } else {
+        setError(data.message || 'Registration failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError('Network error. Please check if the server is running.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,6 +98,7 @@ const RegisterPage = ({ onNavigate }) => {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
+              minLength={6}
             />
           </div>
           <div className="form-group">
@@ -105,8 +138,12 @@ const RegisterPage = ({ onNavigate }) => {
               required
             />
           </div>
-          {error && <div style={{ color: 'red', marginBottom: 10 }}>{error}</div>}
-          <button className="auth-submit" type="submit">Register</button>
+          {error && <div style={{ color: 'red', marginBottom: 10, padding: '10px', backgroundColor: '#ffe6e6', borderRadius: '5px' }}>{error}</div>}
+          {success && <div style={{ color: 'green', marginBottom: 10, padding: '10px', backgroundColor: '#e6ffe6', borderRadius: '5px' }}>{success}</div>}
+          {loading && <div style={{ color: 'blue', marginBottom: 10, padding: '10px', backgroundColor: '#e6f3ff', borderRadius: '5px' }}>Creating account...</div>}
+          <button className="auth-submit" type="submit" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Register'}
+          </button>
           <div className="auth-switch">
             Already have an account?{' '}
             <a href="#" onClick={() => onNavigate('login')}>Login</a>

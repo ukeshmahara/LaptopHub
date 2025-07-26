@@ -16,6 +16,7 @@ function App() {
   const [admin, setAdmin] = useState(null);
   const [cart, setCart] = useState([]);
   const [defaultDashboardSection, setDefaultDashboardSection] = useState('overview');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleAdminLogin = () => {
     setAdmin({ name: 'Alice Admin', email: 'alice@admin.com' });
@@ -56,7 +57,7 @@ function App() {
       case 'about':
         return (
           <div className="app">
-            <Header onNavigate={setCurrentPage} user={user} />
+            <Header onNavigate={setCurrentPage} user={user} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
             <HowItWorks />
             <Footer />
           </div>
@@ -64,10 +65,10 @@ function App() {
       default:
         return (
           <div className="app">
-            <Header onNavigate={setCurrentPage} user={user} />
+            <Header onNavigate={setCurrentPage} user={user} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
             <button style={{position:'absolute',top:10,right:10}} onClick={handleAdminLogin}>Admin Login (Demo)</button>
             <HeroSlideshow />
-            <LaptopShowcase user={user} onNavigate={setCurrentPage} addToCart={addToCart} setDefaultDashboardSection={setDefaultDashboardSection} />
+            <LaptopShowcase user={user} onNavigate={setCurrentPage} addToCart={addToCart} setDefaultDashboardSection={setDefaultDashboardSection} searchQuery={searchQuery} />
             <FeaturesSection />
             <HowItWorks />
             <Footer />

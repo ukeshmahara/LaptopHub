@@ -29,7 +29,9 @@ const create = async (req, res) => {
         const users = await User.create({
             name: body.name,
             email: body.email,
-            password: body.password
+            password: body.password,
+            gender: body.gender,
+            address: body.address
         });
         res.status(201).send({ data: users, message: "successfully created user" })
     } catch (e) {
