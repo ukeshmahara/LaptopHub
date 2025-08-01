@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import './UserDashboard.css';
+import CheckoutForm from './CheckoutForm';
 
-const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItems = [], setCartItems }) => {
+const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItems = [], setCartItems, orders = [], onCreateOrder, onUpdateOrderStatus }) => {
   const [activeSection, setActiveSection] = useState(defaultSection);
   const [userName] = useState(user?.name || 'User');
+  const [showCheckout, setShowCheckout] = useState(false);
 
   // Mock data - in a real app, this would come from your backend
   const wishlist = [
@@ -20,25 +22,6 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
       brand: "ASUS",
       price: 1199,
       image: "https://images.pexels.com/photos/2115217/pexels-photo-2115217.jpeg?auto=compress&cs=tinysrgb&w=400"
-    }
-  ];
-
-  const currentOrders = [
-    {
-      id: "ORD-001",
-      laptopName: "HP Spectre x360 14",
-      price: 799,
-      orderDate: "2024-01-20",
-      status: "Processing",
-      estimatedDelivery: "2024-01-25"
-    },
-    {
-      id: "ORD-002", 
-      laptopName: "Surface Laptop Studio",
-      price: 1399,
-      orderDate: "2024-01-18",
-      status: "Shipped",
-      estimatedDelivery: "2024-01-23"
     }
   ];
 
@@ -62,6 +45,51 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
 
   const getCartItemCount = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
+  };
+
+  const handleConfirmOrder = async (order) => {
+    try {
+      // Create the order with user ID
+      const newOrder = {
+        ...order,
+        userId: user?.id || 1
+      };
+
+      // Add the new order through the parent component
+      if (onCreateOrder) {
+        onCreateOrder(newOrder);
+      }
+      
+      // Clear the cart
+      setCartItems([]);
+      
+      // Show success message
+      alert(`Order ${order.id} has been placed successfully! It is now pending admin approval.`);
+      
+      // Navigate back to dashboard
+      setShowCheckout(false);
+      setActiveSection('orders');
+    } catch (error) {
+      console.error('Error creating order:', error);
+      alert('There was an error creating your order. Please try again.');
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return '#ffa500';
+      case 'processing':
+        return '#007bff';
+      case 'shipped':
+        return '#ff6348';
+      case 'delivered':
+        return '#28a745';
+      case 'cancelled':
+        return '#dc3545';
+      default:
+        return '#6c757d';
+    }
   };
 
   const renderOverview = () => (
@@ -89,8 +117,8 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
         <div className="stat-card">
           <div className="stat-icon">📋</div>
           <div className="stat-content">
-            <h3>{currentOrders.length}</h3>
-            <p>Active Orders</p>
+            <h3>{orders.length}</h3>
+            <p>Total Orders</p>
           </div>
         </div>
         <div className="stat-card">
@@ -105,27 +133,24 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
       <div className="recent-activity">
         <h3>Recent Activity</h3>
         <div className="activity-list">
-          <div className="activity-item">
-            <div className="activity-icon">🛒</div>
-            <div className="activity-content">
-              <p><strong>Order placed</strong> for HP Spectre x360 14</p>
-              <span className="activity-time">2 days ago</span>
+          {orders.slice(0, 3).map((order, index) => (
+            <div key={order.id} className="activity-item">
+              <div className="activity-icon">📦</div>
+              <div className="activity-content">
+                <p><strong>Order {order.id}</strong> - {order.status}</p>
+                <span className="activity-time">{order.orderDate}</span>
+              </div>
             </div>
-          </div>
-          <div className="activity-item">
-            <div className="activity-icon">❤️</div>
-            <div className="activity-content">
-              <p><strong>Added</strong> ASUS ROG Strix G15 to wishlist</p>
-              <span className="activity-time">3 days ago</span>
+          ))}
+          {orders.length === 0 && (
+            <div className="activity-item">
+              <div className="activity-icon">🛒</div>
+              <div className="activity-content">
+                <p><strong>No orders yet</strong></p>
+                <span className="activity-time">Start shopping to see your orders here</span>
+              </div>
             </div>
-          </div>
-          <div className="activity-item">
-            <div className="activity-icon">📦</div>
-            <div className="activity-content">
-              <p><strong>Received</strong> MacBook Pro 13-inch M2</p>
-              <span className="activity-time">1 week ago</span>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
@@ -216,7 +241,10 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
               <span>Total:</span>
               <span>${getCartTotal().toFixed(2)}</span>
             </div>
-            <button className="btn-primary checkout-btn">
+            <button 
+              className="btn-primary checkout-btn"
+              onClick={() => setShowCheckout(true)}
+            >
               Proceed to Checkout
             </button>
           </div>
@@ -229,19 +257,43 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
     <div className="orders">
       <h3>My Orders</h3>
       <div className="orders-list">
-        {currentOrders.map(order => (
+        {orders.map(order => (
           <div key={order.id} className="order-card">
             <div className="order-header">
               <h4>Order #{order.id}</h4>
-              <span className={`status ${order.status.toLowerCase()}`}>
+              <span 
+                className="status" 
+                style={{ 
+                  backgroundColor: getStatusColor(order.status),
+                  color: 'white'
+                }}
+              >
                 {order.status}
               </span>
             </div>
             <div className="order-details">
-              <p><strong>Product:</strong> {order.laptopName}</p>
-              <p><strong>Price:</strong> ${order.price}</p>
-              <p><strong>Order Date:</strong> {order.orderDate}</p>
-              <p><strong>Estimated Delivery:</strong> {order.estimatedDelivery}</p>
+              <div className="order-items-summary">
+                {order.items?.map((item, index) => (
+                  <div key={index} className="order-item-summary">
+                    <img src={item.laptopImage} alt={item.laptopName} />
+                    <div>
+                      <p><strong>{item.laptopName}</strong></p>
+                      <p>Qty: {item.quantity} | NPR {item.price.toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="order-info">
+                <p><strong>Total Amount:</strong> NPR {order.totalAmount?.toLocaleString()}</p>
+                <p><strong>Order Date:</strong> {order.orderDate}</p>
+                <p><strong>Payment Method:</strong> {order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
+                <p><strong>Delivery Address:</strong> {order.deliveryAddress}</p>
+                <p><strong>Phone:</strong> {order.phoneNumber}</p>
+                {order.additionalNotes && (
+                  <p><strong>Notes:</strong> {order.additionalNotes}</p>
+                )}
+                <p><strong>Estimated Delivery:</strong> {order.estimatedDelivery}</p>
+              </div>
             </div>
             <div className="order-actions">
               <button className="btn-secondary">Track Order</button>
@@ -249,6 +301,14 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
             </div>
           </div>
         ))}
+        {orders.length === 0 && (
+          <div className="empty-orders">
+            <p>You haven't placed any orders yet.</p>
+            <button className="btn-primary" onClick={() => onNavigate('home')}>
+              Start Shopping
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -266,10 +326,6 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
           <input type="email" defaultValue="user@example.com" />
         </div>
         <div className="form-group">
-          <label>Phone</label>
-          <input type="tel" defaultValue="+1 (555) 123-4567" />
-        </div>
-        <div className="form-group">
           <label>Shipping Address</label>
           <textarea defaultValue="123 Main St, City, State 12345"></textarea>
         </div>
@@ -279,6 +335,17 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
   );
 
   const renderContent = () => {
+    if (showCheckout) {
+      return (
+        <CheckoutForm
+          cartItems={cartItems}
+          onConfirmOrder={handleConfirmOrder}
+          onCancel={() => setShowCheckout(false)}
+          user={user}
+        />
+      );
+    }
+
     switch (activeSection) {
       case 'overview':
         return renderOverview();
@@ -334,7 +401,7 @@ const UserDashboard = ({ onNavigate, user, defaultSection = 'overview', cartItem
               className={`nav-item ${activeSection === 'orders' ? 'active' : ''}`}
               onClick={() => setActiveSection('orders')}
             >
-              📋 My Orders ({currentOrders.length})
+              📋 My Orders ({orders.length})
             </button>
             <button 
               className={`nav-item ${activeSection === 'settings' ? 'active' : ''}`}

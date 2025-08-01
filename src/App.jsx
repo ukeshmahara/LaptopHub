@@ -17,10 +17,15 @@ function App() {
   const [cart, setCart] = useState([]);
   const [defaultDashboardSection, setDefaultDashboardSection] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Shared orders state between user and admin
+  const [orders, setOrders] = useState([]);
 
-  const handleAdminLogin = () => {
-    setAdmin({ name: 'Alice Admin', email: 'alice@admin.com' });
-    setCurrentPage('admin-dashboard');
+  const handleLogout = () => {
+    setUser(null);
+    setAdmin(null);
+    setCart([]);
+    setCurrentPage('home');
   };
 
   const addToCart = (laptop) => {
@@ -33,6 +38,18 @@ function App() {
       }
       return [...prev, { ...laptop, quantity: 1 }];
     });
+  };
+
+  const handleCreateOrder = (newOrder) => {
+    setOrders(prev => [newOrder, ...prev]);
+  };
+
+  const handleUpdateOrderStatus = (orderId, newStatus) => {
+    setOrders(prev => 
+      prev.map(order => 
+        order.id === orderId ? { ...order, status: newStatus } : order
+      )
+    );
   };
 
   const renderPage = () => {
@@ -51,13 +68,28 @@ function App() {
           defaultSection={defaultDashboardSection}
           cartItems={cart}
           setCartItems={setCart}
+          orders={orders.filter(order => order.userId === (user?.id || 1))}
+          onCreateOrder={handleCreateOrder}
+          onUpdateOrderStatus={handleUpdateOrderStatus}
         />;
       case 'admin-dashboard':
-        return <AdminDashboard onNavigate={setCurrentPage} admin={admin} />;
+        return <AdminDashboard 
+          onNavigate={setCurrentPage} 
+          admin={admin}
+          orders={orders}
+          onUpdateOrderStatus={handleUpdateOrderStatus}
+        />;
       case 'about':
         return (
           <div className="app">
-            <Header onNavigate={setCurrentPage} user={user} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <Header 
+              onNavigate={setCurrentPage} 
+              user={user} 
+              admin={admin}
+              searchQuery={searchQuery} 
+              setSearchQuery={setSearchQuery}
+              onLogout={handleLogout}
+            />
             <HowItWorks />
             <Footer />
           </div>
@@ -65,10 +97,23 @@ function App() {
       default:
         return (
           <div className="app">
-            <Header onNavigate={setCurrentPage} user={user} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-            <button style={{position:'absolute',top:10,right:10}} onClick={handleAdminLogin}>Admin Login (Demo)</button>
+            <Header 
+              onNavigate={setCurrentPage} 
+              user={user} 
+              admin={admin}
+              searchQuery={searchQuery} 
+              setSearchQuery={setSearchQuery}
+              onLogout={handleLogout}
+            />
             <HeroSlideshow />
-            <LaptopShowcase user={user} onNavigate={setCurrentPage} addToCart={addToCart} setDefaultDashboardSection={setDefaultDashboardSection} searchQuery={searchQuery} />
+            <LaptopShowcase 
+              user={user} 
+              admin={admin}
+              onNavigate={setCurrentPage} 
+              addToCart={addToCart} 
+              setDefaultDashboardSection={setDefaultDashboardSection} 
+              searchQuery={searchQuery} 
+            />
             <FeaturesSection />
             <HowItWorks />
             <Footer />
