@@ -1,7 +1,18 @@
 import express from "express";
-import { authController } from "../../controller/index.js";
-const router = express.Router();
-router.get("/init", authController.init);
-router.post("/login", authController.login);
+import { 
+  login, 
+  getCurrentUser, 
+  register 
+} from "../../controller/auth/authController.js";
+import { authenticateToken } from "../../middleware/token-middleware.js";
 
-export { router as authRouter };
+const router = express.Router();
+
+// Public routes
+router.post("/login", login);
+router.post("/register", register);
+
+// Protected routes (require authentication)
+router.get("/me", authenticateToken, getCurrentUser);
+
+export default router;

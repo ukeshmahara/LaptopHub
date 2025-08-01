@@ -1,10 +1,27 @@
 import express from "express";
-import { userController } from "../../controller/index.js";
-const router = express.Router();
-router.get("/", userController.getAll);
-router.post("/", userController.create);
-router.put("/:id", userController.update);
-router.get("/:id", userController.getById);
-router.delete("/:id", userController.delelteById);
+import { 
+  getAllUsers, 
+  getUserById, 
+  createUser, 
+  updateUserProfile, 
+  deleteUser, 
+  getUserProfile 
+} from "../../controller/user/userController.js";
+import { authenticateToken, requireAdmin } from "../../middleware/token-middleware.js";
 
-export { router as userRouter };
+const router = express.Router();
+
+// Public routes
+router.post("/", createUser); // Registration
+
+// User routes (require authentication)
+router.get("/profile", authenticateToken, getUserProfile);
+router.put("/profile", authenticateToken, updateUserProfile);
+
+// Admin routes (require authentication and admin privileges)
+router.get("/", authenticateToken, requireAdmin, getAllUsers);
+router.get("/:id", authenticateToken, requireAdmin, getUserById);
+router.put("/:id", authenticateToken, requireAdmin, updateUserProfile);
+router.delete("/:id", authenticateToken, requireAdmin, deleteUser);
+
+export default router;
