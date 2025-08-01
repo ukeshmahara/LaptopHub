@@ -383,7 +383,8 @@
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
   padding: 0.75rem;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
@@ -392,9 +393,34 @@
 }
 
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: #667eea;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* File Upload Styles */
+.file-input {
+  padding: 0.5rem;
+  border: 2px dashed #667eea;
+  border-radius: 8px;
+  background: rgba(102, 126, 234, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-input:hover {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: #5a67d8;
+}
+
+.image-preview {
+  margin-top: 10px;
 }
 
 .modal-actions {
@@ -432,6 +458,151 @@
   color: white;
 }
 
+.status.processing {
+  background: #3742fa;
+  color: white;
+}
+
+.status.shipped {
+  background: #ff6348;
+  color: white;
+}
+
+.status.delivered {
+  background: #2ed573;
+  color: white;
+}
+
+.status.cancelled {
+  background: #ff4757;
+  color: white;
+}
+
+/* Order Management Styles */
+.order-management {
+  max-width: 1200px;
+}
+
+.order-management h3 {
+  color: #333;
+  margin: 0 0 2rem 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.status-select {
+  padding: 0.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  margin-bottom: 5px;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+/* User Management Styles */
+.user-management {
+  max-width: 1200px;
+}
+
+.user-management h3 {
+  color: #333;
+  margin: 0 0 2rem 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* Pending Orders Section */
+.pending-orders-section {
+  margin-bottom: 2rem;
+}
+
+.pending-orders-section h4 {
+  color: #333;
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.all-orders-section h4 {
+  color: #333;
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Enhanced Order Table Styles */
+.admin-table tr[style*="background-color: #fff3cd"] {
+  border-left: 4px solid #ffa500;
+}
+
+.admin-table tr[style*="background-color: #fff3cd"] td {
+  font-weight: 500;
+}
+
+/* Order Items Display */
+.order-items-display {
+  max-width: 200px;
+}
+
+.order-item-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 2px 0;
+}
+
+.order-item-mini img {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.order-item-mini span {
+  font-size: 12px;
+  color: #333;
+}
+
+/* Status Colors */
+.status.pending {
+  background: #ffa500;
+  color: white;
+}
+
+.status.processing {
+  background: #007bff;
+  color: white;
+}
+
+.status.shipped {
+  background: #ff6348;
+  color: white;
+}
+
+.status.delivered {
+  background: #28a745;
+  color: white;
+}
+
+.status.cancelled {
+  background: #dc3545;
+  color: white;
+}
+
 @media (max-width: 768px) {
   .dashboard-container {
     flex-direction: column;
@@ -443,5 +614,55 @@
   }
   .dashboard-main {
     padding: 1rem;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-content {
+    margin: 1rem;
+    max-height: 95vh;
+  }
+  
+  .admin-table {
+    font-size: 0.9rem;
+  }
+  
+  .admin-table th, .admin-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .pending-orders-section,
+  .all-orders-section {
+    margin-bottom: 1rem;
+  }
+  
+  .admin-table {
+    font-size: 0.8rem;
+  }
+  
+  .admin-table th, 
+  .admin-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .order-items-display {
+    max-width: 150px;
+  }
+  
+  .order-item-mini {
+    flex-direction: column;
+    text-align: center;
+    gap: 2px;
+  }
+  
+  .order-item-mini img {
+    width: 25px;
+    height: 25px;
+  }
+  
+  .order-item-mini span {
+    font-size: 10px;
   }
 } 

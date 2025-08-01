@@ -8,18 +8,63 @@ const mockUsers = [
   { id: 3, name: 'Charlie User', email: 'charlie@user.com' },
 ];
 
-const mockUploads = [
-  { id: 1, filename: 'report.pdf', uploadedBy: 'Alice Admin', date: '2024-05-01' },
-  { id: 2, filename: 'laptop.jpg', uploadedBy: 'Bob User', date: '2024-05-02' },
+// Mock orders data
+const mockOrders = [
+  {
+    id: 'ORD-001',
+    userId: 2,
+    userName: 'Bob User',
+    userEmail: 'bob@user.com',
+    laptopId: 1,
+    laptopName: 'Lenovo IdeaPad 3',
+    laptopImage: 'https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&w=400',
+    quantity: 1,
+    totalPrice: 45000,
+    orderDate: '2024-01-20',
+    status: 'Processing',
+    estimatedDelivery: '2024-01-25',
+    shippingAddress: '123 Main St, Kathmandu, Nepal'
+  },
+  {
+    id: 'ORD-002',
+    userId: 3,
+    userName: 'Charlie User',
+    userEmail: 'charlie@user.com',
+    laptopId: 4,
+    laptopName: 'ASUS VivoBook S15',
+    laptopImage: 'https://images.pexels.com/photos/2115217/pexels-photo-2115217.jpeg?auto=compress&w=400',
+    quantity: 1,
+    totalPrice: 58000,
+    orderDate: '2024-01-18',
+    status: 'Shipped',
+    estimatedDelivery: '2024-01-23',
+    shippingAddress: '456 Oak Ave, Pokhara, Nepal'
+  },
+  {
+    id: 'ORD-003',
+    userId: 2,
+    userName: 'Bob User',
+    userEmail: 'bob@user.com',
+    laptopId: 9,
+    laptopName: 'ASUS TUF Gaming A15',
+    laptopImage: 'https://images.pexels.com/photos/2115217/pexels-photo-2115217.jpeg?auto=compress&w=400',
+    quantity: 1,
+    totalPrice: 85000,
+    orderDate: '2024-01-15',
+    status: 'Delivered',
+    estimatedDelivery: '2024-01-20',
+    shippingAddress: '123 Main St, Kathmandu, Nepal'
+  }
 ];
 
-const AdminDashboard = ({ onNavigate, admin }) => {
+const AdminDashboard = ({ onNavigate, admin, orders = [], onUpdateOrderStatus }) => {
   const [activeSection, setActiveSection] = useState('overview');
   const [users, setUsers] = useState(mockUsers);
-  const [uploads] = useState(mockUploads);
   const [laptopList, setLaptopList] = useState(laptops);
   const [showAddLaptop, setShowAddLaptop] = useState(false);
   const [editingLaptop, setEditingLaptop] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
 
   // New laptop form state
   const [newLaptop, setNewLaptop] = useState({
@@ -28,6 +73,7 @@ const AdminDashboard = ({ onNavigate, admin }) => {
     price: '',
     originalPrice: '',
     image: '',
+    description: '',
     processor: '',
     ram: '',
     storage: '',
@@ -44,6 +90,19 @@ const AdminDashboard = ({ onNavigate, admin }) => {
   const handleDeleteLaptop = (id) => {
     if (window.confirm('Are you sure you want to delete this laptop?')) {
       setLaptopList(laptopList.filter(laptop => laptop.id !== id));
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+        setNewLaptop({...newLaptop, image: e.target.result});
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -72,6 +131,7 @@ const AdminDashboard = ({ onNavigate, admin }) => {
       price: '',
       originalPrice: '',
       image: '',
+      description: '',
       processor: '',
       ram: '',
       storage: '',
@@ -80,6 +140,8 @@ const AdminDashboard = ({ onNavigate, admin }) => {
       inStock: true,
       isNew: false
     });
+    setSelectedImage(null);
+    setImagePreview('');
     setShowAddLaptop(false);
   };
 
@@ -91,6 +153,7 @@ const AdminDashboard = ({ onNavigate, admin }) => {
       price: laptop.price.toString(),
       originalPrice: laptop.originalPrice.toString(),
       image: laptop.image,
+      description: laptop.description || '',
       processor: laptop.specs.processor,
       ram: laptop.specs.ram,
       storage: laptop.specs.storage,
@@ -99,6 +162,7 @@ const AdminDashboard = ({ onNavigate, admin }) => {
       inStock: laptop.inStock,
       isNew: laptop.isNew
     });
+    setImagePreview(laptop.image);
     setShowAddLaptop(true);
   };
 
@@ -128,6 +192,7 @@ const AdminDashboard = ({ onNavigate, admin }) => {
       price: '',
       originalPrice: '',
       image: '',
+      description: '',
       processor: '',
       ram: '',
       storage: '',
@@ -136,7 +201,36 @@ const AdminDashboard = ({ onNavigate, admin }) => {
       inStock: true,
       isNew: false
     });
+    setSelectedImage(null);
+    setImagePreview('');
     setShowAddLaptop(false);
+  };
+
+  const handleUpdateOrderStatus = (orderId, newStatus) => {
+    if (onUpdateOrderStatus) {
+      onUpdateOrderStatus(orderId, newStatus);
+    }
+  };
+
+  const getPendingOrders = () => {
+    return orders.filter(order => order.status === 'Pending');
+  };
+
+  const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return '#ffa500';
+      case 'processing':
+        return '#007bff';
+      case 'shipped':
+        return '#ff6348';
+      case 'delivered':
+        return '#28a745';
+      case 'cancelled':
+        return '#dc3545';
+      default:
+        return '#6c757d';
+    }
   };
 
   const renderOverview = () => (
@@ -161,17 +255,17 @@ const AdminDashboard = ({ onNavigate, admin }) => {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">📁</div>
+          <div className="stat-icon">📦</div>
           <div className="stat-content">
-            <h3>{uploads.length}</h3>
-            <p>Files Uploaded</p>
+            <h3>{orders.length}</h3>
+            <p>Total Orders</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">💰</div>
+          <div className="stat-icon">⏳</div>
           <div className="stat-content">
-            <h3>NPR {laptopList.reduce((sum, laptop) => sum + laptop.price, 0).toLocaleString()}</h3>
-            <p>Total Value</p>
+            <h3>{getPendingOrders().length}</h3>
+            <p>Pending Orders</p>
           </div>
         </div>
       </div>
@@ -186,16 +280,16 @@ const AdminDashboard = ({ onNavigate, admin }) => {
             </div>
           </div>
           <div className="activity-item">
-            <div className="activity-icon">🗑️</div>
+            <div className="activity-icon">📦</div>
             <div className="activity-content">
-              <p><strong>Deleted</strong> user John Doe</p>
+              <p><strong>Updated</strong> order ORD-002 status to Shipped</p>
               <span className="activity-time">2 days ago</span>
             </div>
           </div>
           <div className="activity-item">
-            <div className="activity-icon">📁</div>
+            <div className="activity-icon">👥</div>
             <div className="activity-content">
-              <p><strong>Uploaded</strong> report.pdf</p>
+              <p><strong>Deleted</strong> user John Doe</p>
               <span className="activity-time">3 days ago</span>
             </div>
           </div>
@@ -219,6 +313,7 @@ const AdminDashboard = ({ onNavigate, admin }) => {
               price: '',
               originalPrice: '',
               image: '',
+              description: '',
               processor: '',
               ram: '',
               storage: '',
@@ -227,6 +322,8 @@ const AdminDashboard = ({ onNavigate, admin }) => {
               inStock: true,
               isNew: false
             });
+            setSelectedImage(null);
+            setImagePreview('');
           }}
         >
           ➕ Add New Laptop
@@ -243,6 +340,8 @@ const AdminDashboard = ({ onNavigate, admin }) => {
                 onClick={() => {
                   setShowAddLaptop(false);
                   setEditingLaptop(null);
+                  setSelectedImage(null);
+                  setImagePreview('');
                 }}
               >
                 ✕
@@ -287,13 +386,27 @@ const AdminDashboard = ({ onNavigate, admin }) => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Image URL</label>
-                  <input
-                    type="url"
-                    value={newLaptop.image}
-                    onChange={(e) => setNewLaptop({...newLaptop, image: e.target.value})}
-                    required
+                  <label>Description</label>
+                  <textarea
+                    value={newLaptop.description}
+                    onChange={(e) => setNewLaptop({...newLaptop, description: e.target.value})}
+                    rows="3"
+                    placeholder="Enter laptop description..."
                   />
+                </div>
+                <div className="form-group">
+                  <label>Image Upload</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="file-input"
+                  />
+                  {imagePreview && (
+                    <div className="image-preview">
+                      <img src={imagePreview} alt="Preview" style={{width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', marginTop: '10px'}} />
+                    </div>
+                  )}
                 </div>
                 <div className="form-group">
                   <label>Processor</label>
@@ -371,6 +484,8 @@ const AdminDashboard = ({ onNavigate, admin }) => {
                   onClick={() => {
                     setShowAddLaptop(false);
                     setEditingLaptop(null);
+                    setSelectedImage(null);
+                    setImagePreview('');
                   }}
                 >
                   Cancel
@@ -436,6 +551,166 @@ const AdminDashboard = ({ onNavigate, admin }) => {
     </div>
   );
 
+  const renderOrderManagement = () => (
+    <div className="order-management">
+      <h3>Order Management</h3>
+      
+      {/* Pending Orders Section */}
+      <div className="pending-orders-section">
+        <h4>⏳ Pending Orders ({getPendingOrders().length})</h4>
+        {getPendingOrders().length > 0 ? (
+          <div className="table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Products</th>
+                  <th>Total Amount</th>
+                  <th>Payment Method</th>
+                  <th>Order Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getPendingOrders().map(order => (
+                  <tr key={order.id} style={{backgroundColor: '#fff3cd'}}>
+                    <td><strong>{order.id}</strong></td>
+                    <td>
+                      <div>
+                        <div><strong>{order.userName}</strong></div>
+                        <div style={{fontSize: '12px', color: '#666'}}>{order.userEmail}</div>
+                        <div style={{fontSize: '12px', color: '#666'}}>{order.phoneNumber}</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{maxWidth: '200px'}}>
+                        {order.items?.map((item, index) => (
+                          <div key={index} style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px'}}>
+                            <img 
+                              src={item.laptopImage} 
+                              alt={item.laptopName} 
+                              style={{width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px'}}
+                            />
+                            <span style={{fontSize: '12px'}}>{item.laptopName} (x{item.quantity})</span>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                    <td>NPR {order.totalAmount?.toLocaleString()}</td>
+                    <td>{order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</td>
+                    <td>{order.orderDate}</td>
+                    <td>
+                      <select 
+                        value={order.status}
+                        onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                        className="status-select"
+                        style={{marginBottom: '5px'}}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+                      <button 
+                        className="btn-secondary" 
+                        onClick={() => alert(`Order Details:\nOrder ID: ${order.id}\nCustomer: ${order.userName}\nAddress: ${order.deliveryAddress}\nPhone: ${order.phoneNumber}\nNotes: ${order.additionalNotes || 'None'}\nEstimated Delivery: ${order.estimatedDelivery}`)}
+                        style={{width: '100%', fontSize: '12px'}}
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div style={{textAlign: 'center', padding: '2rem', color: '#666'}}>
+            <p>No pending orders at the moment.</p>
+          </div>
+        )}
+      </div>
+
+      {/* All Orders Section */}
+      <div className="all-orders-section" style={{marginTop: '2rem'}}>
+        <h4>📦 All Orders</h4>
+        <div className="table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Products</th>
+                <th>Total Amount</th>
+                <th>Order Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map(order => (
+                <tr key={order.id}>
+                  <td>{order.id}</td>
+                  <td>
+                    <div>
+                      <div><strong>{order.userName}</strong></div>
+                      <div style={{fontSize: '12px', color: '#666'}}>{order.userEmail}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                      <img 
+                        src={order.items?.[0]?.laptopImage || order.laptopImage} 
+                        alt={order.items?.[0]?.laptopName || order.laptopName} 
+                        style={{width: '40px', height: '40px', objectFit: 'cover', borderRadius: '5px'}}
+                      />
+                      <span>{order.items?.[0]?.laptopName || order.laptopName}</span>
+                    </div>
+                  </td>
+                  <td>NPR {order.totalAmount?.toLocaleString() || order.totalPrice?.toLocaleString()}</td>
+                  <td>{order.orderDate}</td>
+                  <td>
+                    <span 
+                      className="status" 
+                      style={{ 
+                        backgroundColor: getStatusColor(order.status),
+                        color: 'white'
+                      }}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+                  <td>
+                    <select 
+                      value={order.status}
+                      onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                      className="status-select"
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <button 
+                      className="btn-secondary" 
+                      onClick={() => alert(`Order Details:\nOrder ID: ${order.id}\nCustomer: ${order.userName}\nAddress: ${order.deliveryAddress || order.shippingAddress}\nEstimated Delivery: ${order.estimatedDelivery}`)}
+                      style={{marginLeft: '5px'}}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderUserManagement = () => (
     <div className="user-management">
       <h3>User Management</h3>
@@ -465,42 +740,16 @@ const AdminDashboard = ({ onNavigate, admin }) => {
     </div>
   );
 
-  const renderFileUploads = () => (
-    <div className="file-uploads">
-      <h3>File Uploads</h3>
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Filename</th>
-            <th>Uploaded By</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {uploads.map(file => (
-            <tr key={file.id}>
-              <td>{file.id}</td>
-              <td>{file.filename}</td>
-              <td>{file.uploadedBy}</td>
-              <td>{file.date}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
         return renderOverview();
       case 'laptops':
         return renderLaptopManagement();
+      case 'orders':
+        return renderOrderManagement();
       case 'users':
         return renderUserManagement();
-      case 'uploads':
-        return renderFileUploads();
       default:
         return renderOverview();
     }
@@ -535,16 +784,16 @@ const AdminDashboard = ({ onNavigate, admin }) => {
               💻 Laptop Management
             </button>
             <button 
+              className={`nav-item ${activeSection === 'orders' ? 'active' : ''}`}
+              onClick={() => setActiveSection('orders')}
+            >
+              📦 Order Management ({getPendingOrders().length})
+            </button>
+            <button 
               className={`nav-item ${activeSection === 'users' ? 'active' : ''}`}
               onClick={() => setActiveSection('users')}
             >
               👥 User Management
-            </button>
-            <button 
-              className={`nav-item ${activeSection === 'uploads' ? 'active' : ''}`}
-              onClick={() => setActiveSection('uploads')}
-            >
-              📁 File Uploads
             </button>
           </nav>
         </aside>

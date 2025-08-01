@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
 import laptops from '../data/laptops.js';
 
-const LaptopShowcase = ({ user, onNavigate, addToCart, setDefaultDashboardSection, searchQuery = '' }) => {
+const LaptopShowcase = ({ user, admin, onNavigate, addToCart, setDefaultDashboardSection, searchQuery = '' }) => {
   const [showAllLaptops, setShowAllLaptops] = useState(false);
 
   const handleBuyNow = (laptop) => {
-    if (!user) {
+    if (!user && !admin) {
       onNavigate('login');
     } else {
       addToCart(laptop);
       if (setDefaultDashboardSection) setDefaultDashboardSection('cart');
-      onNavigate('dashboard');
+      if (admin) {
+        onNavigate('admin-dashboard');
+      } else {
+        onNavigate('dashboard');
+      }
+    }
+  };
+
+  const handleAdminView = (laptop) => {
+    if (admin) {
+      onNavigate('admin-dashboard');
     }
   };
 
@@ -49,9 +59,19 @@ const LaptopShowcase = ({ user, onNavigate, addToCart, setDefaultDashboardSectio
                   <span className="laptop-price">
                     NPR {laptop.price.toLocaleString()}
                   </span>
-                  <button className="btn-buy" onClick={() => handleBuyNow(laptop)}>
-                    Buy Now
-                  </button>
+                  {admin ? (
+                    <button 
+                      className="btn-buy" 
+                      onClick={() => handleAdminView(laptop)}
+                      style={{ background: '#667eea' }}
+                    >
+                      Manage
+                    </button>
+                  ) : (
+                    <button className="btn-buy" onClick={() => handleBuyNow(laptop)}>
+                      Buy Now
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

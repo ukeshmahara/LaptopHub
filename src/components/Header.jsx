@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, User, Menu, X, Laptop } from 'lucide-react';
 import laptops from '../data/laptops.js';
 
-const Header = ({ onNavigate, user, searchQuery, setSearchQuery }) => {
+const Header = ({ onNavigate, user, admin, searchQuery, setSearchQuery, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -50,6 +50,15 @@ const Header = ({ onNavigate, user, searchQuery, setSearchQuery }) => {
   const handleInputFocus = () => {
     if (searchQuery.trim().length > 0 && suggestions.length > 0) {
       setShowSuggestions(true);
+    }
+  };
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    } else {
+      // Fallback logout
+      window.location.reload();
     }
   };
 
@@ -103,18 +112,28 @@ const Header = ({ onNavigate, user, searchQuery, setSearchQuery }) => {
           {user && (
             <a href="#" onClick={() => onNavigate('dashboard')}>Dashboard</a>
           )}
+          {admin && (
+            <a href="#" onClick={() => onNavigate('admin-dashboard')}>Admin Panel</a>
+          )}
         </nav>
 
         <div className="auth-buttons">
-          {user ? (
+          {admin ? (
+            <div className="user-menu">
+              <span className="user-name">Admin: {admin.name}</span>
+              <button 
+                className="btn btn-logout"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          ) : user ? (
             <div className="user-menu">
               <span className="user-name">Hi, {user.name}</span>
               <button 
                 className="btn btn-logout"
-                onClick={() => {
-                  // Clear user and go to home
-                  window.location.reload();
-                }}
+                onClick={handleLogout}
               >
                 Logout
               </button>
